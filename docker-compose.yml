@@ -1,0 +1,33 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${APP_CONTAINER_NAME:-frontend_fitness}
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT_EXTERNAL:-5173}:${APP_PORT:-5173}"
+    volumes:
+      - .:/home/node/app
+      - /home/node/app/node_modules
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:${APP_PORT:-5173}/health" ]
+      interval: ${APP_HEALTHCHECK_INTERVAL:-10s}
+      timeout: ${APP_HEALTHCHECK_TIMEOUT:-5s}
+      retries: ${APP_HEALTHCHECK_RETRIES:-3}
+      start_period: ${APP_HEALTHCHECK_START_PERIOD:-30s}
+    deploy:
+      resources:
+        limits:
+          cpus: '${APP_CPU_LIMIT:-0.5}'
+          memory: ${APP_MEMORY_LIMIT:-512M}
+
+networks:
+  app-network:
+    name: ${NETWORK_NAME:-network-fitness}
+    driver: bridge
+    external: ${NETWORK_EXTERNAL:-false}
