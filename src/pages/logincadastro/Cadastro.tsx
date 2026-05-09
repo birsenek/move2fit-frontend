@@ -17,6 +17,7 @@ const Cadastro: React.FC = () => {
 		usuario: '',
 		senha: '',
 		foto: '',
+		tipo: 'PERSONAL_TRAINER',
 		peso: 0,
 		altura: 0,
 		imc: 0,
@@ -108,11 +109,33 @@ const Cadastro: React.FC = () => {
 		<>
 			<form className="w-full max-w-md mx-auto p-6" onSubmit={cadastrarNovoUsuario}>
 				<h1 className="text-3xl font-semibold mb-6 text-gray-700">Cadastro</h1>
+				<div className="flex w-full mb-4 rounded-2xl overflow-hidden border border-gray-300">
+					<button
+						type="button"
+						onClick={() => setUsuario({ ...usuario, tipo: 'PERSONAL_TRAINER' })}
+						className={`flex-1 py-3 text-sm font-semibold transition-colors duration-200 ${
+							usuario.tipo === 'PERSONAL_TRAINER'
+								? 'bg-[#FD6101] text-white'
+								: 'bg-gray-200 text-gray-600'
+						}`}>
+						Personal Trainer
+					</button>
+					<button
+						type="button"
+						onClick={() => setUsuario({ ...usuario, tipo: 'ALUNO' })}
+						className={`flex-1 py-3 text-sm font-semibold transition-colors duration-200 ${
+							usuario.tipo === 'ALUNO'
+								? 'bg-[#FD6101] text-white'
+								: 'bg-gray-200 text-gray-600'
+						}`}>
+						Aluno
+					</button>
+				</div>
 				<div className="relative mb-3">
 					<input
 						type="text"
 						name="nome"
-						placeholder="Username"
+						placeholder="Nome"
 						className="w-full py-3 pl-5 pr-12 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
 						value={usuario.nome}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
@@ -185,7 +208,7 @@ const Cadastro: React.FC = () => {
 						id="foto"
 						name="foto"
 						type="text"
-						placeholder="Foto"
+						placeholder="Foto (opcional)"
 						className="w-full py-3 pl-5 pr-12 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
 						value={usuario.foto}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
@@ -198,7 +221,7 @@ const Cadastro: React.FC = () => {
 							id="peso"
 							name="peso"
 							type="number"
-							placeholder="Peso (kg)"
+							placeholder="Peso kg (opcional)"
 							className="appearance-none peer w-full py-3 pl-5 pr-5 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
 							value={usuario.peso ? `${usuario.peso}` : ''}
 							onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumericInput(e, 'peso')}
@@ -210,7 +233,7 @@ const Cadastro: React.FC = () => {
 							id="altura"
 							name="altura"
 							type="number"
-							placeholder="Altura (m)"
+							placeholder="Altura m (opcional)"
 							className="appearance-none peer w-full py-3 pl-5 pr-5 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
 							value={usuario.altura ? `${usuario.altura}` : ''}
 							onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumericInput(e, 'altura')}

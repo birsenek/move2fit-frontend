@@ -12,9 +12,9 @@ function Navbar() {
 
 	function logout() {
 		handleLogout();
-		ToastAlerta('O Usuário foi desconectado com sucesso!', 'success');
-		navigate('/');
-		setIsOpen(false); // Fecha o menu ao clicar em "Sair"
+		ToastAlerta('O Usuário foi desconectado com sucesso!', 'sucesso');
+		navigate('/login');
+		setIsOpen(false);
 	}
 
 	// Fecha o menu se o usuário clicar fora
@@ -51,16 +51,20 @@ function Navbar() {
 							<Link to="/sobre" className="text-white hover:text-orange-500 transition-colors">
 								Sobre
 							</Link>
-							<Link to="/exercicios" className="text-white hover:text-orange-500 transition-colors">
-								Exercícios
-							</Link>
-							<Link to="/categorias" className="text-white hover:text-orange-500 transition-colors">
-								Categorias
-							</Link>
-							<Link to="/alunos" className="text-white hover:text-orange-500 transition-colors">
-								Alunos
-							</Link>
-							<Link to="/perfil">
+							{usuario.tipo === 'PERSONAL_TRAINER' && (
+								<>
+									<Link to="/exercicios" className="text-white hover:text-orange-500 transition-colors">
+										Exercícios
+									</Link>
+									<Link to="/categorias" className="text-white hover:text-orange-500 transition-colors">
+										Categorias
+									</Link>
+									<Link to="/alunos" className="text-white hover:text-orange-500 transition-colors">
+										Alunos
+									</Link>
+								</>
+							)}
+							<Link to={usuario.tipo === 'ALUNO' ? `/alunos/perfil/${usuario.id}` : '/perfil'}>
 								{usuario.foto ? (
 									<img
 										src={usuario.foto}
@@ -75,16 +79,15 @@ function Navbar() {
 								)}
 							</Link>
 
-							<Link
-								to="#"
+							<button
 								onClick={logout}
-								className="text-white hover:text-orange-500 transition-colors">
+								className="text-white hover:text-orange-500 transition-colors cursor-pointer">
 								Sair
-							</Link>
+							</button>
 						</div>
 
 						<div className="md:hidden flex gap-4 items-center">
-							<Link to="/perfil">
+							<Link to={usuario.tipo === 'ALUNO' ? `/alunos/perfil/${usuario.id}` : '/perfil'}>
 								{usuario.foto ? (
 									<img
 										src={usuario.foto}
@@ -124,27 +127,31 @@ function Navbar() {
 								onClick={() => setIsOpen(false)}>
 								Sobre
 							</Link>
-							<Link
-								to="/exercicios"
-								className="block px-3 py-2 text-white hover:text-orange-500"
-								onClick={() => setIsOpen(false)}>
-								Exercícios
-							</Link>
-							<Link
-								to="/categorias"
-								className="block px-3 py-2 text-white hover:text-orange-500"
-								onClick={() => setIsOpen(false)}>
-								Categorias
-							</Link>
-							<Link 
-								to="/alunos" 
-								className="block px-3 py-2 text-white hover:text-orange-500"
-								onClick={() => setIsOpen(false)}>
-								Alunos
-							</Link>
-							<Link to="#" onClick={logout} className="block px-3 py-2 text-white hover:text-orange-500">
+							{usuario.tipo === 'PERSONAL_TRAINER' && (
+								<>
+									<Link
+										to="/exercicios"
+										className="block px-3 py-2 text-white hover:text-orange-500"
+										onClick={() => setIsOpen(false)}>
+										Exercícios
+									</Link>
+									<Link
+										to="/categorias"
+										className="block px-3 py-2 text-white hover:text-orange-500"
+										onClick={() => setIsOpen(false)}>
+										Categorias
+									</Link>
+									<Link
+										to="/alunos"
+										className="block px-3 py-2 text-white hover:text-orange-500"
+										onClick={() => setIsOpen(false)}>
+										Alunos
+									</Link>
+								</>
+							)}
+							<button onClick={logout} className="block px-3 py-2 text-white hover:text-orange-500 cursor-pointer w-full text-left">
 								Sair
-							</Link>
+							</button>
 						</div>
 					</div>
 				)}

@@ -34,7 +34,7 @@ function CardAluno({ aluno }: CardAlunoProps) {
 
 							<div className="flex flex-col gap-4">
 								<p>
-									Email: <span>{aluno.email}</span>
+									Email: <span>{aluno.usuario}</span>
 								</p>
 								<p>
 									Classificação: <span>{aluno.classificacao}</span>

@@ -19,6 +19,7 @@ import ListaAluno from './components/aluno/listaaluno/ListaAluno';
 import FormAluno from './components/aluno/formaluno/FormAluno';
 import DeletarAluno from './components/aluno/deletaraluno/DeletarAluno';
 import PerfilAluno from './pages/perfilaluno/PerfilAluno';
+import AssociarExercicio from './components/aluno/associarexercicio/AssociarExercicio';
 
 import 'react-toastify/dist/ReactToastify.css';
 // import useHealthCheck from './hooks/useHealthCheck';
@@ -55,6 +56,7 @@ function App() {
 							<Route path="/alunos/edit/:id" element={<FormAluno />} />
 							<Route path="/alunos/destroy/:id" element={<DeletarAluno />} />
 							<Route path="/alunos/perfil/:id" element={<PerfilAluno />} />
+							<Route path="/alunos/:id/exercicios" element={<AssociarExercicio />} />
 						</Routes>
 					</div>
 					<Footer />

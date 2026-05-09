@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ToastAlerta } from '../../utils/ToastAlerta';
-import { buscar } from '../../services/Service';
+import { atualizar, buscar } from '../../services/Service';
 import { IMC_FAIXAS } from './ImcFaixasAluno';
 import Aluno from '../../models/Aluno';
 import Exercicio from '../../models/Exercicio';
+import { RotatingLines } from 'react-loader-spinner';
 
 function PerfilAluno() {
 	const navigate = useNavigate();
@@ -17,6 +18,7 @@ function PerfilAluno() {
 	const [imcImagem, setImcImagem] = useState<string>('');
 	const [imcDescricao, setImcDescricao] = useState<string>('');
 	const [imcStyle, setImcStyle] = useState<string>('bg-yellow-500');
+	const [removendoId, setRemovendoId] = useState<number | null>(null);
 
 	async function buscarPorId(id: string) {
 		try {
@@ -54,6 +56,35 @@ function PerfilAluno() {
 
 	const exerciciosDoAluno = aluno.exercicios || (aluno as any).exercicio || [];
 
+	async function removerExercicio(exercicio: Exercicio) {
+		setRemovendoId(exercicio.id);
+		try {
+			let exercicioCompleto: Exercicio = {} as Exercicio;
+			await buscar(`/exercicios/${exercicio.id}`, (data: Exercicio) => { exercicioCompleto = data; }, {
+				headers: { Authorization: token },
+			});
+
+			const exercicioAtualizado = {
+				...exercicioCompleto,
+				aluno: (exercicioCompleto.aluno || []).filter((a) => a.id !== aluno.id),
+			};
+
+			await atualizar('/exercicios', exercicioAtualizado, () => {}, {
+				headers: { Authorization: token },
+			});
+
+			ToastAlerta('Exercício removido do aluno!', 'sucesso');
+			if (id) buscarPorId(id);
+		} catch (error: any) {
+			if (error.toString().includes('403')) {
+				handleLogout();
+			} else {
+				ToastAlerta('Erro ao remover exercício', 'erro');
+			}
+		}
+		setRemovendoId(null);
+	}
+
 	return (
 		<div className="max-w-[1440px] mx-4 xl:mx-auto m-2 rounded-2xl overflow-hidden mt-15 max-sm:px-1">
 			<div>
@@ -73,7 +104,7 @@ function PerfilAluno() {
 					<div className="absolute ml-20 top-10 max-sm:ml-0 max-sm:top-22 max-sm:flex-col max-sm:items-center max-sm:text-center max-lg:top-12 max-lg:ml-50">
 						<div className="">
 							<h2 className="font-bold text-3xl pb-2">{aluno.nome}</h2>
-							<h2>{aluno.email}</h2>
+							<h2>{aluno.usuario}</h2>
 						</div>
 					</div>
 				</div>
@@ -117,8 +148,13 @@ function PerfilAluno() {
 			</div>
 
 			<div className='my-10'>
-				<div className='flex justify-center py-6 mb-4'>
+				<div className='flex justify-between items-center py-6 mb-4 px-2'>
 					<h1 className='text-4xl font-semibold'>Lista de treino</h1>
+					<Link
+						to={`/alunos/${id}/exercicios`}
+						className="bg-[#FD6101] hover:bg-[#B63700] text-white font-semibold px-5 py-2 rounded-xl transition-colors">
+						+ Adicionar Exercício
+					</Link>
 				</div>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{exerciciosDoAluno && exerciciosDoAluno.length > 0 ? (
@@ -151,6 +187,16 @@ function PerfilAluno() {
 											</p>
 										)}
 									</div>
+									<button
+										onClick={() => removerExercicio(exercicio)}
+										disabled={removendoId === exercicio.id}
+										className="mt-4 w-full flex items-center justify-center gap-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-semibold py-2 rounded-xl transition-colors disabled:opacity-60">
+										{removendoId === exercicio.id ? (
+											<RotatingLines strokeColor="currentColor" strokeWidth="5" animationDuration="0.75" width="18" visible={true} />
+										) : (
+											'Remover'
+										)}
+									</button>
 								</div>
 							</div>
 						))
@@ -166,4 +212,3 @@ function PerfilAluno() {
 }
 
 export default PerfilAluno;
-

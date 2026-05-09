@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Para navegação
 import { AuthContext } from '../../contexts/AuthContext';
 import { ToastAlerta } from '../../utils/ToastAlerta';
-import { Barbell, Heart, User, Users } from '@phosphor-icons/react';
+import { Barbell, Flame, Heart, User, Users } from '@phosphor-icons/react';
 
 export default function Home() {
 	const navigate = useNavigate();
@@ -34,6 +34,14 @@ export default function Home() {
 				<div className="flex max-w-[1440px] flex-col justify-center items-center lg:items-start ml-4 z-10 text-left w-full">
 					<div className='lg:ml-15 mx-4 md:mx-0 text-center md:text-start'>
 						<h1 className="text-5xl md:text-6xl font-bold mb-6 text-[#FD6101]">Seja bem vindo!</h1>
+						{usuario.token && (
+							<div className="inline-flex items-center gap-2 bg-[#FD6101]/20 border border-[#FD6101] text-white px-4 py-2 rounded-full mb-6">
+								<Flame className="text-[#FD6101]" size={20} weight="fill" />
+								<span className="font-semibold">
+									{usuario.diasSeguidos} {usuario.diasSeguidos === 1 ? 'dia seguido' : 'dias seguidos'} de login!
+								</span>
+							</div>
+						)}
 						<p className="text-xl md:text-xl max-w-xl mb-8 text-white">
 							Treinos organizados, resultados reais! Conectando alunos e personal trainers para uma jornada
 							fitness mais eficaz.

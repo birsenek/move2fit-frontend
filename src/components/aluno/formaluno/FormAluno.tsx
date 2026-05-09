@@ -10,6 +10,7 @@ function FormAluno() {
 	const navigate = useNavigate();
 
 	const [aluno, setAluno] = useState<Aluno>({} as Aluno);
+	const [confirmaSenha, setConfirmaSenha] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const { usuario, handleLogout } = useContext(AuthContext);
@@ -58,6 +59,7 @@ function FormAluno() {
 				await atualizar(`/alunos`, aluno, setAluno, {
 					headers: { Authorization: token },
 				});
+				ToastAlerta('Aluno atualizado com sucesso!', 'sucesso');
 			} catch (error: any) {
 				if (error.toString().includes('403')) {
 					handleLogout();
@@ -66,11 +68,21 @@ function FormAluno() {
 				}
 			}
 		} else {
+			if (!aluno.senha || aluno.senha.length < 8) {
+				ToastAlerta('A senha deve ter no mínimo 8 caracteres.', 'erro');
+				setIsLoading(false);
+				return;
+			}
+			if (aluno.senha !== confirmaSenha) {
+				ToastAlerta('As senhas não coincidem.', 'erro');
+				setIsLoading(false);
+				return;
+			}
 			try {
-				await cadastrar(`/alunos`, aluno, setAluno, {
+				await cadastrar(`/alunos`, { ...aluno, tipo: 'ALUNO' }, setAluno, {
 					headers: { Authorization: token },
 				});
-				ToastAlerta('Aluno foi cadastrado com sucesso', 'sucesso');
+				ToastAlerta('Aluno cadastrado com sucesso!', 'sucesso');
 			} catch (error: any) {
 				if (error.toString().includes('403')) {
 					handleLogout();
@@ -103,24 +115,57 @@ function FormAluno() {
 							name="nome"
 							required
 							className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none"
-							value={aluno.nome}
-							onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
+							value={aluno.nome || ''}
+							onChange={atualizarEstado}
 						/>
 					</div>
 					<div className="flex flex-col gap-2">
-						<label htmlFor="email" className="text-[#1E2729]">
+						<label htmlFor="usuario" className="text-[#1E2729]">
 							E-mail:
 						</label>
 						<input
-							type="text"
+							type="email"
 							placeholder="Digite o e-mail do aluno"
-							name="email"
+							name="usuario"
 							required
-							className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none"
-							value={aluno.email}
-							onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
+							disabled={id !== undefined}
+							className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none disabled:opacity-50"
+							value={aluno.usuario || ''}
+							onChange={atualizarEstado}
 						/>
 					</div>
+					{id === undefined && (
+						<>
+							<div className="flex flex-col gap-2">
+								<label htmlFor="senha" className="text-[#1E2729]">
+									Senha (mínimo 8 caracteres):
+								</label>
+								<input
+									type="password"
+									placeholder="Digite a senha do aluno"
+									name="senha"
+									required
+									className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none"
+									value={aluno.senha || ''}
+									onChange={atualizarEstado}
+								/>
+							</div>
+							<div className="flex flex-col gap-2">
+								<label htmlFor="confirmaSenha" className="text-[#1E2729]">
+									Confirmar Senha:
+								</label>
+								<input
+									type="password"
+									placeholder="Confirme a senha do aluno"
+									name="confirmaSenha"
+									required
+									className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none"
+									value={confirmaSenha}
+									onChange={(e) => setConfirmaSenha(e.target.value)}
+								/>
+							</div>
+						</>
+					)}
 					<div className="flex flex-col gap-2">
 						<label htmlFor="foto" className="text-[#1E2729]">
 							Foto
@@ -129,16 +174,15 @@ function FormAluno() {
 							type="text"
 							placeholder="Insira o link da foto do Aluno"
 							name="foto"
-							required
 							className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none"
-							value={aluno.foto}
-							onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
+							value={aluno.foto || ''}
+							onChange={atualizarEstado}
 						/>
 					</div>
 
 					<div className="flex justify-between gap-4">
 						<div className="flex flex-col gap-2 w-full">
-							<label htmlFor="foto" className="text-[#1E2729]">
+							<label htmlFor="peso" className="text-[#1E2729]">
 								Peso
 							</label>
 							<input
@@ -147,8 +191,8 @@ function FormAluno() {
 								name="peso"
 								required
 								className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none"
-								value={aluno.peso}
-								onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
+								value={aluno.peso || ''}
+								onChange={atualizarEstado}
 							/>
 						</div>
 						<div className="flex flex-col gap-2 w-full">
@@ -161,8 +205,8 @@ function FormAluno() {
 								name="altura"
 								required
 								className="rounded-lg p-2 bg-[#D9D9D9] text-[#808080] border-0 focus:ring-0 focus:outline-none"
-								value={aluno.altura}
-								onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
+								value={aluno.altura || ''}
+								onChange={atualizarEstado}
 							/>
 						</div>
 					</div>

@@ -24,10 +24,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		token: '',
 		nome: '',
 		foto: '',
+		tipo: '',
 		peso: 0,
 		altura: 0,
 		imc: 0,
 		classificacao: '',
+		diasSeguidos: 0,
 	});
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -52,10 +54,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 			token: '',
 			nome: '',
 			foto: '',
+			tipo: '',
 			peso: 0,
 			altura: 0,
 			imc: 0,
 			classificacao: '',
+			diasSeguidos: 0,
 		});
 	}
 
