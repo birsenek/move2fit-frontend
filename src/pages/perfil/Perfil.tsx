@@ -1,33 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { ToastAlerta } from '../../utils/ToastAlerta';
-import { IMC_FAIXAS_USUARIO } from './ImcFaixas';
 
 function Perfil() {
-	const navigate = useNavigate();
-
 	const { usuario } = useContext(AuthContext);
-
-	const [imcImagem, setImcImagem] = useState<string>('');
-	const [imcDescricao, setImcDescricao] = useState<string>('');
-	const [imcStyle, setImcStyle] = useState<string>('bg-yellow-500');
-
-	// useEffect(() => {
-	// 	if (usuario.token === '') {
-	// 		ToastAlerta('Você precisa estar logado', 'erro');
-	// 		navigate('/login');
-	// 	}
-	// }, [usuario.token]);
-
-	useEffect(() => {
-		const imcData = IMC_FAIXAS_USUARIO.find((range) => usuario.imc <= range.max);
-		if (imcData) {
-			setImcImagem(imcData.imagem);
-			setImcDescricao(imcData.descricao);
-			setImcStyle(imcData.cor);
-		}
-	}, [usuario.imc]);
 
 	return (
 		<div className="max-w-[1440px] mx-4 xl:mx-auto m-2 rounded-2xl overflow-hidden mt-15 max-sm:px-1">
@@ -53,42 +28,9 @@ function Perfil() {
 					</div>
 				</div>
 
-				<div className="flex p-4 bg-white rounded-lg shadow-2xl w-full mx-auto mt-4 flex-col md:flex-row gap-4">
-					<div className="flex flex-col md:flex-row sm:justify-around justify-center items-center mb-2 text-center sm:text-start w-full">
-						<div className="flex flex-col gap-4">
-							<p className="text-gray-700 font-medium">
-								Peso: <span className="font-semibold">{usuario.peso}</span> kg
-							</p>
-							<p className="text-gray-700 font-medium">
-								Altura: <span className="font-semibold">{usuario.altura}</span>m
-							</p>
-							<p className="text-gray-700 font-medium">
-								IMC: <span className="font-semibold">{usuario.imc}</span>
-							</p>
-							<p className="text-gray-700 font-medium ">
-								Classificação:{' '}
-								<span className={`font-semibold p-2 rounded-lg ${imcStyle}`}>
-									{usuario.classificacao}
-								</span>
-							</p>
-						</div>
-					</div>
-					<div className="flex md:flex-row justify-start items-start mb-2 text-center w-full">
-						<div className="md:w-[80%]">
-							<div className="flex flex-col lg:flex-row justify-center items-center gap-4">
-								<img
-									className={`h-30 object-contain border-0 bg-white drop-shadow-lg p-4 px-10 rounded-[100%]`}
-									src={imcImagem}
-									alt="Classificação do IMC"
-								/>
-								<div>
-									<h2 className="text-xl font-bold text-center my-2">Indicações IMC</h2>
-									<p className="px-4">{imcDescricao}</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<p className="p-6">
+					As avaliações físicas estão no perfil de cada aluno, na seção Histórico de avaliações.
+				</p>
 			</div>
 		</div>
 	);

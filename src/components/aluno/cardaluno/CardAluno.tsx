@@ -10,9 +10,9 @@ function CardAluno({ aluno }: CardAlunoProps) {
 	return (
 		<>
 			<div className="drop-shadow-lg flex rounded-2xl max-w-95 bg-white text-[#1E2729]">
-				<div className='flex flex-col'>
+				<div className="flex flex-col">
 					<div className="flex w-[80%] p-3 justify-center items-center gap-4 mx-auto">
-						<img src={aluno.foto} alt="Imagem relacionada ao exercício" />
+						<img src={aluno.foto} alt={`Avatar de ${aluno.nome}`} className="w-32 h-32 rounded-full object-cover" />
 					</div>
 					<div className="flex flex-col py-6 gap-6 px-8">
 						<div className="flex flex-col gap-6">
@@ -52,7 +52,10 @@ function CardAluno({ aluno }: CardAlunoProps) {
 										className="transition-transform duration-300 hover:scale-120 hover:text-[#B63700]"
 									/>
 								</Link>
-								<Link to={`/alunos/destroy/${aluno.id}`}>
+								<Link
+									to={`/alunos/destroy/${aluno.id}`}
+									aria-label={`Remover vínculo com ${aluno.nome}`}
+									title="Remover vínculo">
 									<Trash
 										size={25}
 										className="transition-transform duration-300 hover:scale-120 hover:text-[#B63700]"

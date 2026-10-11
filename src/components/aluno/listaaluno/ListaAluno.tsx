@@ -12,19 +12,24 @@ function ListaAluno() {
 	const navigate = useNavigate();
 	const [query, setQuery] = useState('');
 	const [alunos, setAlunos] = useState<Aluno[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const { usuario, handleLogout } = useContext(AuthContext);
 	const token = usuario.token;
 
 	async function buscarAlunos() {
+		setIsLoading(true);
 		try {
 			await buscar('/alunos', setAlunos, {
 				headers: { Authorization: token },
 			});
 		} catch (error: any) {
-			if (error.toString().includes('403')) {
+			if (error.toString().includes('401')) {
 				handleLogout();
 			}
+			ToastAlerta(error.response?.data?.message || 'Não foi possível carregar seus alunos.', 'erro');
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
@@ -37,7 +42,14 @@ function ListaAluno() {
 		}
 	}, [token]);
 
-	const filterAlunos = alunos.filter((aluno) => aluno.nome.toLowerCase().includes(query.toLowerCase()));
+	const filterAlunos = alunos.filter(
+		(aluno) =>
+			aluno.nome.toLowerCase().includes(query.toLowerCase()) ||
+			aluno.usuario.toLowerCase().includes(query.toLowerCase()),
+	);
+
+	if (usuario.tipo !== 'PERSONAL_TRAINER')
+		return <p className="text-center my-12">Esta área é exclusiva para treinadores.</p>;
 
 	return (
 		<>
@@ -77,7 +89,7 @@ function ListaAluno() {
 				</div>
 			</div>
 
-			{alunos.length === 0 && (
+			{isLoading && (
 				<DNA
 					visible={true}
 					height="200"
@@ -90,8 +102,15 @@ function ListaAluno() {
 
 			<div className="flex justify-center w-full my-4 mt-15 md:mt-0">
 				<div className="flex flex-col mx-2">
-					{filterAlunos.length === 0 && (
-						<span className="text-3xl text-center my-8">Nenhum exercício foi encontrado</span>
+					{!isLoading && filterAlunos.length === 0 && (
+						<div className="text-center my-8">
+							<p className="text-2xl">
+								{query ? 'Nenhum aluno encontrado.' : 'Você ainda não tem alunos vinculados.'}
+							</p>
+							<Link className="inline-block mt-4 text-[#B63700] underline" to="/alunos/store">
+								Cadastrar ou vincular aluno
+							</Link>
+						</div>
 					)}
 					<div
 						className="mx-auto my-4 

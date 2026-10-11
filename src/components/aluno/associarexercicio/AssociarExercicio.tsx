@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
-import { atualizar, buscar } from '../../../services/Service';
+import { api, buscar } from '../../../services/Service';
 import { ToastAlerta } from '../../../utils/ToastAlerta';
 import Aluno from '../../../models/Aluno';
 import Exercicio from '../../../models/Exercicio';
@@ -22,7 +22,9 @@ function AssociarExercicio() {
 		try {
 			await buscar(`/alunos/${id}`, setAluno, { headers: { Authorization: token } });
 		} catch (error: any) {
-			if (error.toString().includes('403')) handleLogout();
+			if (error.toString().includes('401')) handleLogout();
+			ToastAlerta(error.response?.data?.message || 'Aluno não encontrado na sua lista.', 'erro');
+			navigate('/alunos');
 		}
 	}
 
@@ -48,29 +50,20 @@ function AssociarExercicio() {
 		}
 	}, [id]);
 
-	const idsJaAssociados = new Set(
-		(aluno.exercicios || (aluno as any).exercicio || []).map((e: Exercicio) => e.id)
-	);
+	const idsJaAssociados = new Set((aluno.exercicios || aluno.exercicio || []).map((e: Exercicio) => e.id));
 
 	const exerciciosDisponiveis = exercicios.filter((e) => !idsJaAssociados.has(e.id));
 
 	async function associar(exercicio: Exercicio) {
 		setLoadingId(exercicio.id);
 		try {
-			let exercicioCompleto: Exercicio = {} as Exercicio;
-			await buscar(`/exercicios/${exercicio.id}`, (data: Exercicio) => { exercicioCompleto = data; }, {
-				headers: { Authorization: token },
-			});
-
-			const alunosAtuais: Aluno[] = exercicioCompleto.aluno || [];
-			const exercicioAtualizado = {
-				...exercicioCompleto,
-				aluno: [...alunosAtuais, aluno],
-			};
-
-			await atualizar('/exercicios', exercicioAtualizado, () => {}, {
-				headers: { Authorization: token },
-			});
+			await api.post(
+				`/alunos/${id}/exercicios/${exercicio.id}`,
+				{},
+				{
+					headers: { Authorization: token },
+				},
+			);
 
 			ToastAlerta('Exercício adicionado ao aluno!', 'sucesso');
 			await buscarAluno();
@@ -87,9 +80,7 @@ function AssociarExercicio() {
 	return (
 		<div className="max-w-[1440px] mx-4 xl:mx-auto mt-10 mb-10">
 			<div className="flex items-center justify-between mb-8 px-2">
-				<h1 className="text-3xl font-semibold">
-					Adicionar Exercício a {aluno.nome || '...'}
-				</h1>
+				<h1 className="text-3xl font-semibold">Adicionar Exercício a {aluno.nome || '...'}</h1>
 				<button
 					onClick={() => navigate(`/alunos/perfil/${id}`)}
 					className="bg-[#1E2729] text-white font-semibold px-5 py-2 rounded-xl hover:bg-[#2f3e41] transition-colors">
@@ -109,11 +100,7 @@ function AssociarExercicio() {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 					{exerciciosDisponiveis.map((exercicio) => (
 						<div key={exercicio.id} className="bg-white rounded-xl shadow-md overflow-hidden">
-							<img
-								src={exercicio.foto}
-								alt={exercicio.nome}
-								className="w-full h-48 object-cover"
-							/>
+							<img src={exercicio.foto} alt={exercicio.nome} className="w-full h-48 object-cover" />
 							<div className="p-4">
 								<h3 className="font-bold text-lg text-gray-800">{exercicio.nome}</h3>
 								<p className="text-gray-600 mt-1 text-sm">{exercicio.descricao}</p>
@@ -135,8 +122,7 @@ function AssociarExercicio() {
 									)}
 									{exercicio.categoria && (
 										<p className="text-gray-700 col-span-2">
-											<span className="font-medium">Categoria:</span>{' '}
-											{exercicio.categoria.nome}
+											<span className="font-medium">Categoria:</span> {exercicio.categoria.nome}
 										</p>
 									)}
 								</div>
@@ -145,7 +131,13 @@ function AssociarExercicio() {
 									disabled={loadingId === exercicio.id}
 									className="mt-4 w-full flex items-center justify-center gap-2 bg-[#FD6101] hover:bg-[#B63700] text-white font-semibold py-2 rounded-xl transition-colors disabled:opacity-60">
 									{loadingId === exercicio.id ? (
-										<RotatingLines strokeColor="white" strokeWidth="5" animationDuration="0.75" width="20" visible={true} />
+										<RotatingLines
+											strokeColor="white"
+											strokeWidth="5"
+											animationDuration="0.75"
+											width="20"
+											visible={true}
+										/>
 									) : (
 										<>
 											<Plus size={18} weight="bold" />

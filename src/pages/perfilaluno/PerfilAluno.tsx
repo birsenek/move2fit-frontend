@@ -1,8 +1,9 @@
+import AvaliacoesAluno from '../../components/aluno/AvaliacoesAluno';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ToastAlerta } from '../../utils/ToastAlerta';
-import { atualizar, buscar } from '../../services/Service';
+import { buscar, deletar } from '../../services/Service';
 import { IMC_FAIXAS } from './ImcFaixasAluno';
 import Aluno from '../../models/Aluno';
 import Exercicio from '../../models/Exercicio';
@@ -15,8 +16,6 @@ function PerfilAluno() {
 
 	const { id } = useParams<{ id: string }>();
 	const [aluno, setAluno] = useState<Aluno>({} as Aluno);
-	const [imcImagem, setImcImagem] = useState<string>('');
-	const [imcDescricao, setImcDescricao] = useState<string>('');
 	const [imcStyle, setImcStyle] = useState<string>('bg-yellow-500');
 	const [removendoId, setRemovendoId] = useState<number | null>(null);
 
@@ -26,9 +25,11 @@ function PerfilAluno() {
 				headers: { Authorization: token },
 			});
 		} catch (error: any) {
-			if (error.toString().includes('403')) {
+			if (error.toString().includes('401')) {
 				handleLogout();
 			}
+			ToastAlerta(error.response?.data?.message || 'Aluno não encontrado na sua lista.', 'erro');
+			navigate('/alunos');
 		}
 	}
 
@@ -43,33 +44,23 @@ function PerfilAluno() {
 		if (id !== undefined) {
 			buscarPorId(id);
 		}
-	}, [id]);
+	}, [id, token]);
 
 	useEffect(() => {
-		const imcData = IMC_FAIXAS.find((range) => aluno.imc <= range.max);
+		if (!aluno.imc) return;
+		const imc = aluno.imc;
+		const imcData = IMC_FAIXAS.find((range) => imc <= range.max);
 		if (imcData) {
-			setImcImagem(imcData.imagem);
-			setImcDescricao(imcData.descricao);
 			setImcStyle(imcData.cor);
 		}
 	}, [aluno.imc]);
 
-	const exerciciosDoAluno = aluno.exercicios || (aluno as any).exercicio || [];
+	const exerciciosDoAluno = aluno.exercicios || aluno.exercicio || [];
 
 	async function removerExercicio(exercicio: Exercicio) {
 		setRemovendoId(exercicio.id);
 		try {
-			let exercicioCompleto: Exercicio = {} as Exercicio;
-			await buscar(`/exercicios/${exercicio.id}`, (data: Exercicio) => { exercicioCompleto = data; }, {
-				headers: { Authorization: token },
-			});
-
-			const exercicioAtualizado = {
-				...exercicioCompleto,
-				aluno: (exercicioCompleto.aluno || []).filter((a) => a.id !== aluno.id),
-			};
-
-			await atualizar('/exercicios', exercicioAtualizado, () => {}, {
+			await deletar(`/alunos/${id}/exercicios/${exercicio.id}`, {
 				headers: { Authorization: token },
 			});
 
@@ -112,14 +103,19 @@ function PerfilAluno() {
 				<div className="flex p-4 bg-white rounded-lg shadow-2xl w-full mx-auto mt-4 flex-col md:flex-row gap-4">
 					<div className="flex flex-col md:flex-row sm:justify-around justify-center items-center mb-2 text-center sm:text-start w-full">
 						<div className="flex flex-col gap-4">
-							<p className="text-gray-700 font-medium">
-								Peso: <span className="font-semibold">{aluno.peso}</span> kg
+							<p className="text-sm text-gray-600">
+								{aluno.ultimaAvaliacao
+									? `Última avaliação: ${aluno.ultimaAvaliacao.dataColeta.split('-').reverse().join('/')}`
+									: 'Nenhuma avaliação registrada.'}
 							</p>
 							<p className="text-gray-700 font-medium">
-								Altura: <span className="font-semibold">{aluno.altura}</span>m
+								Peso: <span className="font-semibold">{aluno.peso ?? '—'}</span> kg
 							</p>
 							<p className="text-gray-700 font-medium">
-								IMC: <span className="font-semibold">{aluno.imc}</span>
+								Altura: <span className="font-semibold">{aluno.altura ?? '—'}</span>m
+							</p>
+							<p className="text-gray-700 font-medium">
+								IMC: <span className="font-semibold">{aluno.imc ?? '—'}</span>
 							</p>
 							<p className="text-gray-700 font-medium ">
 								Classificação:{' '}
@@ -129,27 +125,20 @@ function PerfilAluno() {
 							</p>
 						</div>
 					</div>
-					<div className="flex md:flex-row justify-start items-start mb-2 text-center w-full">
-						<div className="md:w-[80%]">
-							<div className="flex flex-col lg:flex-row justify-center items-center gap-4">
-								<img
-									className={`h-30 object-contain border-0 bg-white drop-shadow-lg p-4 px-10 rounded-[100%]`}
-									src={imcImagem}
-									alt="Classificação do IMC"
-								/>
-								<div>
-									<h2 className="text-xl font-bold text-center my-2">Indicações IMC</h2>
-									<p className="px-4">{imcDescricao}</p>
-								</div>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 
-			<div className='my-10'>
-				<div className='flex justify-between items-center py-6 mb-4 px-2'>
-					<h1 className='text-4xl font-semibold'>Lista de treino</h1>
+			{aluno.id && (
+				<AvaliacoesAluno
+					alunoId={aluno.id}
+					onSaved={() => {
+						if (id) void buscarPorId(id);
+					}}
+				/>
+			)}
+			<div className="my-10">
+				<div className="flex justify-between items-center py-6 mb-4 px-2">
+					<h1 className="text-4xl font-semibold">Lista de treino</h1>
 					<Link
 						to={`/alunos/${id}/exercicios`}
 						className="bg-[#FD6101] hover:bg-[#B63700] text-white font-semibold px-5 py-2 rounded-xl transition-colors">
@@ -192,7 +181,13 @@ function PerfilAluno() {
 										disabled={removendoId === exercicio.id}
 										className="mt-4 w-full flex items-center justify-center gap-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-semibold py-2 rounded-xl transition-colors disabled:opacity-60">
 										{removendoId === exercicio.id ? (
-											<RotatingLines strokeColor="currentColor" strokeWidth="5" animationDuration="0.75" width="18" visible={true} />
+											<RotatingLines
+												strokeColor="currentColor"
+												strokeWidth="5"
+												animationDuration="0.75"
+												width="18"
+												visible={true}
+											/>
 										) : (
 											'Remover'
 										)}

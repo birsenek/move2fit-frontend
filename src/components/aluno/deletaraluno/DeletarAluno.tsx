@@ -56,12 +56,12 @@ function DeletarAluno() {
 			await deletar(`/alunos/${id}`, {
 				headers: { Authorization: token },
 			});
-			ToastAlerta('Aluno apagado com sucesso!', 'sucesso');
+			ToastAlerta('Vínculo com o aluno removido!', 'sucesso');
 		} catch (error: any) {
 			if (error.toString().includes('401')) {
 				handleLogout();
 			} else {
-				ToastAlerta('Erro ao deletar o aluno.', 'erro');
+				ToastAlerta('Erro ao remover o vínculo com o aluno.', 'erro');
 			}
 		}
 
@@ -73,8 +73,11 @@ function DeletarAluno() {
 		<>
 			<Modal isOpen={isOpen} onClose={retornar}>
 				<div className="container w-full mx-auto">
-					<h1 className="py-4 text-3xl text-center">Deletar Aluno</h1>
-					<p className="mb-4 font-semibold text-center">Você tem certeza de que deseja deletar esse aluno?</p>
+					<h1 className="py-4 text-3xl text-center">Remover vínculo</h1>
+					<p className="mb-4 font-semibold text-center">
+						Remover este aluno da sua lista? O cadastro, os exercícios e os vínculos com outros treinadores
+						serão preservados.
+					</p>
 					<div className="flex flex-col justify-between overflow-hidden">
 						<p className="h-full p-8 text-3xl text-center bg-white">{aluno.nome}</p>
 						<div className="flex justify-center gap-5">

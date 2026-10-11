@@ -124,9 +124,7 @@ const Cadastro: React.FC = () => {
 						type="button"
 						onClick={() => setUsuario({ ...usuario, tipo: 'ALUNO' })}
 						className={`flex-1 py-3 text-sm font-semibold transition-colors duration-200 ${
-							usuario.tipo === 'ALUNO'
-								? 'bg-[#FD6101] text-white'
-								: 'bg-gray-200 text-gray-600'
+							usuario.tipo === 'ALUNO' ? 'bg-[#FD6101] text-white' : 'bg-gray-200 text-gray-600'
 						}`}>
 						Aluno
 					</button>
@@ -215,32 +213,34 @@ const Cadastro: React.FC = () => {
 					/>
 					<i className="bx bxs-image absolute right-5 top-1/2 transform -translate-y-1/2 text-2xl text-gray-700"></i>
 				</div>
-				<div className="flex w-auto justify-between items-center space-x-4">
-					<div className="w-full relative mb-3">
-						<input
-							id="peso"
-							name="peso"
-							type="number"
-							placeholder="Peso kg (opcional)"
-							className="appearance-none peer w-full py-3 pl-5 pr-5 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
-							value={usuario.peso ? `${usuario.peso}` : ''}
-							onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumericInput(e, 'peso')}
-						/>
-						<i className="bx bxs-weight absolute right-5 top-1/2 transform -translate-y-1/2 text-2xl text-gray-700"></i>
+				{usuario.tipo === 'ALUNO' && (
+					<div className="flex w-auto justify-between items-center space-x-4">
+						<div className="w-full relative mb-3">
+							<input
+								id="peso"
+								name="peso"
+								type="number"
+								placeholder="Peso kg (opcional)"
+								className="appearance-none peer w-full py-3 pl-5 pr-5 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
+								value={usuario.peso ? `${usuario.peso}` : ''}
+								onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumericInput(e, 'peso')}
+							/>
+							<i className="bx bxs-weight absolute right-5 top-1/2 transform -translate-y-1/2 text-2xl text-gray-700"></i>
+						</div>
+						<div className="w-full relative mb-3">
+							<input
+								id="altura"
+								name="altura"
+								type="number"
+								placeholder="Altura m (opcional)"
+								className="appearance-none peer w-full py-3 pl-5 pr-5 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
+								value={usuario.altura ? `${usuario.altura}` : ''}
+								onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumericInput(e, 'altura')}
+							/>
+							<i className="bx bxs-ruler absolute right-5 top-1/2 transform -translate-y-1/2 text-2xl text-gray-700"></i>
+						</div>
 					</div>
-					<div className="w-full relative mb-3">
-						<input
-							id="altura"
-							name="altura"
-							type="number"
-							placeholder="Altura m (opcional)"
-							className="appearance-none peer w-full py-3 pl-5 pr-5 bg-gray-200 rounded-2xl text-gray-700 font-medium text-base outline-none placeholder-gray-500"
-							value={usuario.altura ? `${usuario.altura}` : ''}
-							onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumericInput(e, 'altura')}
-						/>
-						<i className="bx bxs-ruler absolute right-5 top-1/2 transform -translate-y-1/2 text-2xl text-gray-700"></i>
-					</div>
-				</div>
+				)}
 				<button
 					type="submit"
 					className="w-full h-12 bg-[#FD6101] rounded-2xl shadow-md text-white font-semibold text-base cursor-pointer flex items-center justify-center">
