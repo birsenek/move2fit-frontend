@@ -3,8 +3,7 @@ $projectRoot = $PSScriptRoot
 $runtime = Join-Path $projectRoot '.local'
 $nodeHome = Join-Path $runtime 'node-v22.22.0-win-x64'
 $node = Join-Path $nodeHome 'node.exe'
-$pg = Join-Path $runtime 'pgsql\bin'
-$data = Join-Path $runtime 'pgdata'
+$pgService = 'postgresql-x64-18'
 $backend = Join-Path (Split-Path $projectRoot -Parent) 'move2fit-backend'
 $statePath = Join-Path $runtime 'processes.json'
 $env:PATH = "$nodeHome;$env:PATH"
@@ -17,16 +16,19 @@ $env:PORT = '3000'
 $env:VITE_API_URL = 'http://localhost:3000'
 $env:APP_PORT = '5173'
 
-if (!(Test-Path $node) -or !(Test-Path (Join-Path $pg 'pg_ctl.exe'))) {
-    throw 'Node.js ou PostgreSQL local ausente em .local.'
+if (!(Test-Path $node)) {
+    throw 'Node.js local ausente em .local.'
 }
 $backendMain = Join-Path $backend 'dist\main.js'
 if (!(Test-Path $backendMain)) { throw 'Compile o backend antes de iniciar (npm run build).' }
 
-& (Join-Path $pg 'pg_ctl.exe') -D $data status *> $null
-if ($LASTEXITCODE -ne 0) {
-    & (Join-Path $pg 'pg_ctl.exe') -D $data -l (Join-Path $runtime 'postgres.log') -w start
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao iniciar PostgreSQL. Consulte .local\postgres.log.' }
+# PostgreSQL 18 instalado como servico do Windows (inicia com o sistema)
+$service = Get-Service -Name $pgService -ErrorAction SilentlyContinue
+if (!$service) { throw "Servico $pgService nao encontrado. Instale o PostgreSQL 18." }
+if ($service.Status -ne 'Running') {
+    try { Start-Service -Name $pgService } catch {
+        throw "Servico $pgService parado. Inicie-o como administrador: Start-Service $pgService"
+    }
 }
 
 $tracked = @()

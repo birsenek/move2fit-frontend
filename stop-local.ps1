@@ -12,11 +12,4 @@ if (Test-Path $statePath) {
     }
     Remove-Item -LiteralPath $statePath
 }
-$pgCtl = Join-Path $runtime 'pgsql\bin\pg_ctl.exe'
-$data = Join-Path $runtime 'pgdata'
-& $pgCtl -D $data status *> $null
-if ($LASTEXITCODE -eq 0) {
-    & $pgCtl -D $data -m fast -w stop
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao parar PostgreSQL.' }
-}
-Write-Host 'Servicos locais parados. Os dados do banco foram preservados.'
+Write-Host 'Backend e frontend parados. O PostgreSQL continua rodando como servico do Windows.'

@@ -26,17 +26,17 @@ docker compose up   # run via Docker (copy .env.example to .env first)
 
 ### Local full stack (Windows, no Docker)
 
-This repo also holds the scripts that run the whole project locally. Node.js 22 and PostgreSQL are portable installs under `.local/` (git-ignored), and the backend must sit in the sibling folder `../move2fit-backend`. Details in `LOCAL_SETUP.md`.
+This repo also holds the scripts that run the whole project locally. Node.js 22 is a portable install under `.local/` (git-ignored); PostgreSQL 18 is a global install running as the Windows service `postgresql-x64-18`, and the backend must sit in the sibling folder `../move2fit-backend`. Details in `LOCAL_SETUP.md`.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\start-local.ps1   # PostgreSQL + backend (dist/main.js) + Vite
+powershell -ExecutionPolicy Bypass -File .\start-local.ps1   # backend (dist/main.js) + Vite; checks the PostgreSQL service
 powershell -ExecutionPolicy Bypass -File .\seed-local.ps1    # sample data (idempotent)
-powershell -ExecutionPolicy Bypass -File .\stop-local.ps1    # stop all three, keeping the data
+powershell -ExecutionPolicy Bypass -File .\stop-local.ps1    # stop backend and Vite (PostgreSQL service keeps running)
 ```
 
 - App: http://localhost:5173 — API/Swagger: http://localhost:3000/swagger
 - `start-local.ps1` runs the **compiled** backend. After changing backend code: stop, run `npm.cmd run build` in `../move2fit-backend`, start again.
-- Logs: `.local/*.log`. Database files: `.local/pgdata` (do not delete). Backups: `.local/backups/`.
+- Logs: `.local/*.log`. Database: PostgreSQL 18 service (`.local/pgdata` is the old PG 17 data, backup only). Backups: `.local/backups/`.
 - Dev database: `127.0.0.1:5432`, database and user `movetofit`, password `move2fit`.
 - Seed trainer login: `carlos.oliveira@email.com` / `Senha@123` (also `ana.lima@email.com`). The seed creates 2 trainers, 18 students (9 each) and 10 weekly assessments per student, flagged `SEED`.
 - Dependencies were installed with `npm.cmd ci --legacy-peer-deps` (peer dependency conflict in the original project).

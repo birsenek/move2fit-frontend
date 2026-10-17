@@ -1,6 +1,6 @@
 # Execucao local no Windows
 
-Node.js e PostgreSQL estao instalados em `.local`, sem instalacao global ou Docker. O backend deve permanecer na pasta vizinha `../move2fit-backend`.
+Node.js esta instalado em `.local`, sem instalacao global ou Docker. O PostgreSQL 18 esta instalado globalmente como servico do Windows (`postgresql-x64-18`), que inicia junto com o sistema. O backend deve permanecer na pasta vizinha `../move2fit-backend`.
 
 Na pasta do frontend, execute no PowerShell:
 
@@ -45,7 +45,7 @@ Para verificar os fluxos e as permissoes com a API iniciada:
 
 Os testes criam e removem somente contas temporarias. Uma copia anterior a inclusao do relacionamento esta em `.local/backups/before-trainer-links.dump`.
 
-Para parar os tres servicos, preservando os dados:
+Para parar o backend e o frontend (o PostgreSQL continua rodando como servico):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\stop-local.ps1
@@ -58,7 +58,9 @@ powershell -ExecutionPolicy Bypass -File .\stop-local.ps1
 - Banco e usuario: `movetofit`
 - Senha local: `move2fit`
 
-O banco aceita conexoes somente pela maquina local. Os dados persistem em `.local/pgdata`; nao apague essa pasta se quiser preservar os registros. O backend cria e sincroniza as tabelas automaticamente. Estas credenciais sao apenas para desenvolvimento local.
+O banco fica no PostgreSQL 18 global (`C:\Program Files\PostgreSQL\18`), servico `postgresql-x64-18`. O `start-local.ps1` apenas confere se o servico esta rodando. Para acessar pelo terminal: `psql -h 127.0.0.1 -U movetofit -d movetofit`.
+
+Os dados foram migrados do antigo PostgreSQL 17 portatil. A pasta `.local/pgdata` e o dump `.local/backups/migracao-pg17-para-pg18.dump` ficam apenas como backup e nao sao mais usados. O backend cria e sincroniza as tabelas automaticamente. Estas credenciais sao apenas para desenvolvimento local.
 
 O script transmite as variaveis `DB_*` para o backend e inicia a versao compilada. Depois de alterar o codigo do backend, pare os servicos, compile novamente e inicie:
 
@@ -85,4 +87,4 @@ O Docker Compose original do backend usa MySQL, mas o codigo usa PostgreSQL. A c
 
 O histórico de avaliações, a migração das medidas e o modelo de machine learning estão descritos em [AVALIACOES_ML.md](AVALIACOES_ML.md). Para popular ou completar os dados locais, execute `powershell -ExecutionPolicy Bypass -File .\seed-local.ps1`.
 
-Downloads utilizados: [Node.js](https://nodejs.org/en/download/archive/v22.22.0) e [PostgreSQL / EDB](https://www.enterprisedb.com/download-postgresql-binaries).
+Downloads utilizados: [Node.js](https://nodejs.org/en/download/archive/v22.22.0). PostgreSQL 18 instalado com `winget install PostgreSQL.PostgreSQL.18`.
